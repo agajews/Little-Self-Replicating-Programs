@@ -7,7 +7,10 @@ import Value
 import State
 import Builtins
 
-import Control.Monad
+import System.Random
+import Control.Monad.Random
+
+type RandM = Rand StdGen
 
 mutateP :: Double
 mutateP = 0.01
@@ -21,42 +24,42 @@ mutateFuncP = 0.3
 mutateTypeP :: Double
 mutateTypeP = 0.1
 
-mutateInt :: Int -> Thread Int
+mutateInt :: Int -> RandM Int
 mutateInt x = do
-    b <- rand
+    b <- getRandom
     return $ if b then x + 1 else x - 1
 
-randInt :: Thread Int
-randInt = randRange (-5, 5)
+randInt :: RandM Int
+randInt = getRandomR (-5, 5)
 
-randIntVal :: Thread Value
+randIntVal :: RandM Value
 randIntVal = randInt >>= return . IntVal
 
-randPrimFunc :: Thread Value
+randPrimFunc :: RandM Value
 randPrimFunc = do
-    i <- randRange (0, length primFuncs - 1)
+    i <- getRandomR (0, length primFuncs - 1)
     return $ primFuncs !! i
 
-randLambda :: Thread Value
+randLambda :: RandM Value
 randLambda = do
     x <- randInt
     v <- randomValue
     return $ Lambda x v
 
-randVariable :: Thread Value
+randVariable :: RandM Value
 randVariable = randInt >>= return . Variable
 
-randFuncCall :: Thread Value
+randFuncCall :: RandM Value
 randFuncCall = do
     f <- randomValue
     a <- randomValue
     return $ FuncCall f a
 
-mutateInplace :: Value -> Thread Value
+mutateInplace :: Value -> RandM Value
 mutateInplace (IntVal x) = mutateInt x >>= return . IntVal
 mutateInplace (PrimFunc _ _) = randPrimFunc
 mutateInplace (Lambda x v) = do
-    b <- rand
+    b <- getRandom
     if b < mutateParP then do
         x' <- mutateInt x
         return $ Lambda x' v
@@ -65,7 +68,7 @@ mutateInplace (Lambda x v) = do
         return $ Lambda x v'
 mutateInplace (Variable x) = mutateInt x >>= return . Variable
 mutateInplace (FuncCall f a) = do
-    b <- rand
+    b <- getRandom
     if b < mutateFuncP then do
         f' <- mutateInplace f
         return $ FuncCall f' a
@@ -73,9 +76,9 @@ mutateInplace (FuncCall f a) = do
         a' <- mutateInplace a
         return $ FuncCall f a'
 
-randomValue :: Thread Value
+randomValue :: RandM Value
 randomValue = do
-    b <- randRange (0, 4)
+    b <- getRandomR (0, 4)
     case b :: Int of
         0 -> randIntVal
         1 -> randPrimFunc
@@ -83,19 +86,18 @@ randomValue = do
         3 -> randVariable
         4 -> randFuncCall
 
-mutateValue :: Value -> Thread Value
+mutateValue :: Value -> RandM Value
 mutateValue x = do
-    b <- rand
+    b <- getRandom
     if b < mutateTypeP then randomValue
     else mutateInplace x
 
 mutate :: Thread ()
 mutate = do
-    b <- rand
+    b <- liftRandom getRandom
     when (b < mutateP) $ do
         n <- getSize
-        i <- randRange (0, n - 1)
+        i <- liftRandom $ getRandomR (0, n - 1)
         x <- getCell i
-        x' <- mutateValue x
+        x' <- liftRandom $ mutateValue x
         setCell i x'
-

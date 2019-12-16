@@ -1,6 +1,4 @@
 module State (
-    randRange,
-    rand,
     getVar,
     setVar,
     getCell,
@@ -17,20 +15,6 @@ import Control.Monad.State
 import System.Random
 
 import qualified Data.Map as Map
-
-randRange :: Random a => (a, a) -> Thread a
-randRange range = do
-    state <- get
-    let (x, g) = randomR range (randomGen state)
-    put $ state { randomGen = g }
-    return x
-
-rand :: Random a => Thread a
-rand = do
-    state <- get
-    let (x, g) = random (randomGen state)
-    put $ state { randomGen = g }
-    return x
 
 getVar :: Int -> Thread Value
 getVar x = do

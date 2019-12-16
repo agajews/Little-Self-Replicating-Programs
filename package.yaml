@@ -25,6 +25,7 @@ dependencies:
 - containers
 - monad-coroutine
 - random
+- MonadRandom
 
 library:
   source-dirs: src

@@ -9,12 +9,14 @@ module Value (
     throw,
     pause,
     runThread,
+    liftRandom,
 ) where
 
 import Control.Monad.Identity
 import Control.Monad.Except
 import Control.Monad.State
 import Control.Monad.Coroutine
+import Control.Monad.Random
 
 import System.Random
 
@@ -57,3 +59,10 @@ runThread state (Thread t) = unwrapId $ runIdentity $ runStateT (runExceptT $ re
     unwrapId (Right (Left (Identity t)), state) = (Right $ Left $ Thread t, state)
     unwrapId (Right (Right x), state) = (Right $ Right x, state)
     unwrapId (Left err, state) = (Left err, state)
+
+liftRandom :: Rand StdGen a -> Thread a
+liftRandom rand = do
+    state <- get
+    let (x, g) = runRand rand $ randomGen state
+    put $ state { randomGen = g }
+    return x

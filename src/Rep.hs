@@ -7,12 +7,14 @@ import State
 import Eval
 import Mutate
 
+import Control.Monad.Random
+
 import qualified Data.Map as Map
 
 randomThread :: Thread Value
 randomThread = do
     n <- getSize
-    i <- randRange (0, n - 1)
+    i <- liftRandom $ getRandomR (0, n - 1)
     setCellPos i
     cell <- getCell i
     eval cell
@@ -28,3 +30,6 @@ runStep states threads = (states'', threads'') where
     univ' = Map.union (Map.unions $ map univEdits states') univ 
     updateState state = state { univMap = univ', univEdits = Map.empty }
     states'' = map updateState states'
+
+-- initialize :: Int -> Int -> Int -> ([WorldState], [Thread Value])
+-- initialize nCells nThreads seed = 
