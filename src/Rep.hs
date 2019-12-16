@@ -31,5 +31,18 @@ runStep states threads = (states'', threads'') where
     updateState state = state { univMap = univ', univEdits = Map.empty }
     states'' = map updateState states'
 
--- initialize :: Int -> Int -> Int -> ([WorldState], [Thread Value])
--- initialize nCells nThreads seed = 
+initialize :: Int -> Int -> Int -> ([WorldState], [Thread Value])
+initialize nCells nThreads seed = (states, threads) where
+    rand = do
+        cells <- sequence $ replicate nCells randomValue
+        seeds <- sequence $ replicate nThreads getRandom
+        return (cells, seeds)
+    (cells, seeds) = evalRand rand $ mkStdGen seed
+    univ = Map.fromList $ zip [0..] cells
+    states = [WorldState { univMap = univ,
+                           univSize = nCells,
+                           univEdits = Map.empty,
+                           envMap = Map.empty,
+                           randomGen = mkStdGen s,
+                           cellPos = 0 } | s <- seeds]
+    threads = replicate nThreads randomThread
