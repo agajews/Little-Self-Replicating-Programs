@@ -1,5 +1,6 @@
 module Rep (
     runStep,
+    runN,
 ) where
 
 import Value
@@ -19,8 +20,8 @@ randomThread = do
     cell <- getCell i
     eval cell
 
-runStep :: [WorldState] -> [Thread Value] -> ([WorldState], [Thread Value])
-runStep states threads = (states'', threads'') where
+runStep :: ([WorldState], [Thread Value]) -> ([WorldState], [Thread Value])
+runStep (states, threads) = (states'', threads'') where
     (threads', states') = unzip [runThread s (mutate >> t) | (s, t) <- zip states threads]
     restartThread (Left err) = randomThread
     restartThread (Right (Left t)) = t
@@ -46,3 +47,6 @@ initialize nCells nThreads seed = (states, threads) where
                            randomGen = mkStdGen s,
                            cellPos = 0 } | s <- seeds]
     threads = replicate nThreads randomThread
+
+runN :: Int -> Int -> Int -> Int -> [WorldState]
+runN nCells nThreads seed n = fst $ iterate runStep (initialize nCells nThreads seed) !! n

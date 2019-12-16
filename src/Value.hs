@@ -28,6 +28,13 @@ data Value = IntVal Int
            | Variable Int
            | FuncCall Value Value
 
+instance Show Value where
+    show (IntVal x) = show x
+    show (PrimFunc name _) = name
+    show (Lambda var val) = "(lambda var:" ++ show var ++ " " ++ show val ++ ")"
+    show (Variable var) = "var:" ++ show var
+    show (FuncCall f a) = "(" ++ show f ++ " " ++ show a ++ ")"
+
 type ValueMap = Map.Map Int Value
 
 data EvalError = EvalError
@@ -38,6 +45,7 @@ data WorldState = WorldState { univMap :: ValueMap,
                                envMap :: ValueMap,
                                randomGen :: StdGen,
                                cellPos :: Int }
+                  deriving (Show)
 
 newtype Thread a = Thread { unwrapThread :: Coroutine Identity (ExceptT EvalError (StateT WorldState Identity)) a }
     deriving (Functor,
