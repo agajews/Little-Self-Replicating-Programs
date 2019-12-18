@@ -1,7 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
-module Value (
+module ValueOld (
     Value(..),
     EvalError(..),
     Thread(..),
