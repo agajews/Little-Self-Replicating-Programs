@@ -32,7 +32,7 @@ randomThread = do
     cell <- getCell i
     eval cell
 \end{code}
-To run a step of simulation, we tell the threads to mutate 
+To run a step of simulation, we tell the threads to mutate the universe, and then we run the threads for one step of execution, randomly restart any threads that have finished evaluating their assigned cells, then merge edits to the universe and write the results back to the thread states.
 
 \begin{code}
 runStep :: ([WorldState], [Thread Value]) -> ([WorldState], [Thread Value])
@@ -48,6 +48,7 @@ runStep (states, threads) = (states'', threads'') where
     updateState state = state { univMap = univ', univEdits = Map.empty }
     states'' = map updateState states'
 \end{code}
+At the beginning of the simulation, we set each cell to a random value, generate some random seeds to give each thread a different random generator, and start each thread on evaluating a random cell.
 
 \begin{code}
 initialize :: Int -> Int -> Int -> ([WorldState], [Thread Value])
@@ -67,6 +68,7 @@ initialize nCells nThreads seed = (states, threads) where
     states = [makeState s | s <- seeds]
     threads = replicate nThreads randomThread
 \end{code}
+The following is just a helper function that will run the simulation for $n$ steps.
 
 \begin{code}
 runN :: Int -> Int -> Int -> Int -> [WorldState]
