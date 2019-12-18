@@ -1,3 +1,5 @@
+This module contains all the builtin functions that can be used. Hopefully I didn't forget anything that prevents the interpreter from being Turing-complete.
+
 \begin{code}
 module Builtins (
     primFuncs,
@@ -9,6 +11,7 @@ import Value
 import State
 import Eval
 \end{code}
+There's just one export, the \texttt{primFuncs} export, which is just a list of \texttt{PrimFunc}s.
 
 \begin{code}
 primFuncs :: [Value]
@@ -41,6 +44,7 @@ primFuncs = [macro3 "if" ifFunc,
              func2 "funccall-set-func" funcCallSetFunc,
              func2 "funccall-set-arg" funcCallSetArg]
 \end{code}
+The following are just some helper functions that make defining multi-parameter functions and macros easier. The difference is that functions automatically evaluate their parameters, but macros do not. Fundamentally they're both fexprs, the only reason there are both is to reduce repetition in function definitions. There's probably some crazy dependent-type way to make these helpers work for functions of any arity, but since there are only two of each type, it seemed fine to do it by hand.
 
 \begin{code}
 func1 :: String -> (Value -> Thread Value) -> Value
@@ -72,6 +76,7 @@ macro3 name f = PrimFunc name $ \x -> return $
                 PrimFunc (name ++ "2") $ \z ->
                 f x y z
 \end{code}
+The following is just an if macro. There aren't booleans in the language, so positive integers are treated as true and negative ones as false.
 
 \begin{code}
 ifFunc :: Value -> Value -> Value -> Thread Value
@@ -83,6 +88,7 @@ ifFunc b thenExpr elseExpr = do
             else eval elseExpr
         _ -> throw EvalError
 \end{code}
+The following is a macro that sets a local variable (recall that these are unique to each thread of execution).
 
 \begin{code}
 define :: Value -> Value -> Thread Value
@@ -92,6 +98,7 @@ define (Variable x) y = do
     return y'
 define _ _ = throw EvalError
 \end{code}
+The \texttt{peek} and \texttt{poke} functions read from and write to cells, respectively. The names are a reference to early BASIC machines.
 
 \begin{code}
 peek :: Value -> Thread Value
@@ -111,6 +118,7 @@ poke (IntVal x) val = do
     return val
 poke _ _ = throw EvalError
 \end{code}
+The \texttt{intOp}, \texttt{intBoolOp}, and \texttt{boolOp} functions are helpers for defining builtin binary operators on integers and ``bools'', which are also just integers. The operators that output booleans output 1 for true and 0 for false.
 
 \begin{code}
 intOp :: (Int -> Int -> Int) -> Value -> Value -> Thread Value
@@ -131,6 +139,7 @@ boolOp op (IntVal x) (IntVal y) = return $ IntVal $
     if op (x > 0) (y > 0) then 1 else 0
 boolOp _ _ _ = throw EvalError
 \end{code}
+The next few functions are for metaprogramming, allowing the construction and deconstruction of lambdas and function calls. They should be helpful in allowing actual self-replication.
 
 \begin{code}
 lambdaGetVar :: Value -> Thread Value

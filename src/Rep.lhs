@@ -1,3 +1,5 @@
+This module contains the heart and soul of the simulator, the code that sets up the initial state, and the code that takes a state and runs one step of simulation on it. That is, this module contains the initial value and the update rule of the dynamical system we're building.
+
 \begin{code}
 module Rep (
     runStep,
@@ -19,6 +21,7 @@ import Control.Monad.Random
 \begin{code}
 import qualified Data.Map as Map
 \end{code}
+The \texttt{randomThread} function assigns a thread to a random cell to evaluate, and starts it evaluating that random cell.
 
 \begin{code}
 randomThread :: Thread Value
@@ -29,6 +32,7 @@ randomThread = do
     cell <- getCell i
     eval cell
 \end{code}
+To run a step of simulation, we tell the threads to mutate 
 
 \begin{code}
 runStep :: ([WorldState], [Thread Value]) -> ([WorldState], [Thread Value])
