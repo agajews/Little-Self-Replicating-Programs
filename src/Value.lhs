@@ -33,6 +33,7 @@ We also need the \texttt{Rand} monad to deal with mutations and random initializ
 import Control.Monad.Random
 import System.Random
 \end{code}
+For parallelization, we're going make \texttt{NFData} instances for all of the relevant data structures, so that we can force deep enough parallel evaluation at each step of execution.
 
 \begin{code}
 import Control.DeepSeq
@@ -100,6 +101,7 @@ instance MonadState WorldState Thread where
     get = Thread $ lift $ get
     put = Thread . lift . put
 \end{code}
+And as promised, here are the relevant \texttt{NFData} instances:
 
 \begin{code}
 instance NFData (Thread a) where

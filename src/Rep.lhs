@@ -37,7 +37,7 @@ randomThread = do
     cell <- getCell i
     eval cell
 \end{code}
-To run a step of simulation, we tell the threads to mutate the universe, and then we run the threads for one step of execution, randomly restart any threads that have finished evaluating their assigned cells, then merge edits to the universe and write the results back to the thread states.
+To run a step of simulation, we tell the threads to mutate the universe, and then we run the threads for one step of execution, randomly restart any threads that have finished evaluating their assigned cells, then merge edits to the universe and write the results back to the thread states. In terms of parallelization, it is relatively straightforward, just doing a parallel map over the \texttt{runThread}s.
 
 \begin{code}
 runStep :: ([WorldState], [Thread Value]) -> ([WorldState], [Thread Value])

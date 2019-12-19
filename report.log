@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.12.18)  18 DEC 2019 18:04
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.12.18)  18 DEC 2019 19:27
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -143,37 +143,37 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 [1
 
 {/usr/local/texlive/2019basic/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-(./src/Value.lhs
+[1] (./src/Value.lhs [2]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 43.
+(Font)              <7> on input line 50.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 43.
- [1] [2]) [3] (./src/State.lhs [4]) [5] (./src/Eval.lhs)
-[6] (./src/Builtins.lhs [7] [8]) [9] (./src/Mutate.lhs
+(Font)              <5> on input line 50.
+ [3] [4]) [5] (./src/State.lhs [6]) [7] (./src/Eval.lhs) [8] (./src/Builtins.lh
+s [9] [10]) [11] (./src/Mutate.lhs
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <10.95> on input line 57.
- [10] [11]) [12]
-(./src/Rep.lhs [13]) [14] (./report.aux) ) 
+ [12] [13]) [14]
+(./src/Rep.lhs [15]) [16] [17] (./report.aux) ) 
 Here is how much of TeX's memory you used:
- 2451 strings out of 493610
- 32703 string characters out of 6159292
+ 2452 strings out of 493610
+ 32718 string characters out of 6159292
  330032 words of memory out of 5000000
- 6622 multiletter control sequences out of 15000+600000
- 8532 words of font info for 31 fonts, out of 8000000 for 9000
+ 6623 multiletter control sequences out of 15000+600000
+ 8839 words of font info for 32 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
  29i,6n,36p,1142b,1576s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2019basic/texmf-d
-ist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2019basic/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2019basic
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2019ba
-sic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/201
-9basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/
-2019basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texl
-ive/2019basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on report.pdf (15 pages, 115011 bytes).
+</usr/local/texlive/2019basic/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2019basi
+c/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2019
+basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2
+019basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texliv
+e/2019basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/tex
+live/2019basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local
+/texlive/2019basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on report.pdf (18 pages, 122772 bytes).
 PDF statistics:
- 81 PDF objects out of 1000 (max. 8388607)
- 56 compressed objects within 1 object stream
+ 90 PDF objects out of 1000 (max. 8388607)
+ 62 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -32,27 +32,49 @@
 \maketitle
 \end{titlepage}
 
-\section{Value.lhs}
+\section{Introduction}
+In this project, I built a simple open-ended ALife simulator. Open-ended is a keyword here. Most ALife simulators use an explicit evolutionary process, with organisms that have some genetic code and some reproduction mechanism. They also usually have some sense of evolutionary fitness that the organisms are trying to optimize.
+
+In this project, I've done away all these things and simulated at a slightly lower level, where you just have little bits of code that can modify each other and themselves, and a bit of randomness thrown in. The idea is that something like reproduction would probably emerge, because if any such idea happened to emerge by chance, it would quickly expand and take over everything. The only question is how long it would take until such a thing emerged.
+
+More concretely, the idea is this: there is a list of code expressions (imagine Lisp S-expressions for something specific) that represents the universe, and there is some fixed number of threads of execution, representing energy in this universe (this is where parallelization could give a speedup). Each thread of execution is always evaluating some expression in the list, and if it ever finishes, it jumps to another random one and starts up again.
+
+There is also some base rate of mutation, by which randomly selected code expressions are mutated according to some mutation rule. Importantly, some of the instructions allow the code expressions to read and write their own and each others' code. This is done through relative addressing so that the same expression can be used for recursion anywhere in the list. For example, an expression should ask for (peek 0) to get itself, (peek 1) for its neighbor to the right, (peek -1) for its neighbor to the left, etc. This mechanism, together with the ability to pass execution to one of these other expressions (e.g. ((expr -1))) ought to be enough to make the whole thing Turing-complete.
+
+At the beginning of the simulation, the universe list is filled with randomly generated code expressions, and the threads of execution are be assigned to randomly selected expressions. At this point, the game will be to see how long it takes for recursion to occur (all you need is one of the expressions to be ((expr 0)) to capture the execution thread indefinitely, until a mutation kills the program), and to try to study any other patterns that emerge.
+
+\newpage
+\section{Code}
+This section contains a walkthrough of all of the code in the simulator. If something doesn't make sense, feel free to email me at \texttt{apg2162@columbia.edu}.
+\subsection{Value.lhs}
 \input{src/Value.lhs}
 
 \newpage
-\section{State.lhs}
+\subsection{State.lhs}
 \input{src/State.lhs}
 
 \newpage
-\section{Eval.lhs}
+\subsection{Eval.lhs}
 \input{src/Eval.lhs}
 
 \newpage
-\section{Builtins.lhs}
+\subsection{Builtins.lhs}
 \input{src/Builtins.lhs}
 
 \newpage
-\section{Mutate.lhs}
+\subsection{Mutate.lhs}
 \input{src/Mutate.lhs}
 
 \newpage
-\section{Rep.lhs}
+\subsection{Rep.lhs}
 \input{src/Rep.lhs}
+
+\newpage
+\section{Results and Discussion}
+Empirically, parallelization helps a decent amount, though definitely far from linear. A simple experiment with 100 cells, 100 threads of execution, and running for 10000 steps took 5.49 seconds to run in a single Haskell Execution Context (HEC), 5.16 seconds to run on two HECs, and 2.96 seconds to run on three HECs. Studying the eventlog, it seems that the main difficulty is that each step of work is so small (basically just evaluating a single function call with depth 1) that the overhead of sending the work to an HEC is comparable to the actual work of evaluating the expression.
+
+One way of making the algorithm more parallelizable in the future could be to pause execution more infrequently, for example by pausing with stochastically with some fixed probability, say 10\%. Then each thunk would give the HECs more work to do. On the other hand, this would cause some thunks to take much longer to evaluate than others, and since the different steps of simulation are necessarily synchronized in lock-step, this could leave some HECs starved, unless there are many more threads of execution than HECs.
+
+As for whether or not self-replication emerged, unfortunately it seems it did not in this first version. In fact, the longest expression took just 7 steps to evaluate, indicating that the simulation did not even discover recursion. The probable cause for this is that there were too many builtin functions; future versions of the simulator could try to simplify the language used in the interpreter to make recursion easier to discover. Other improvements could be to use \texttt{Array.Diff} instead of maps for the universe, or perhaps the \texttt{ST} monad, to speed up the number of steps per second that the simulator is able to run, enabling the simulator to run for longer and allowing more complex behaviors to emerge.
 
 \end{document}

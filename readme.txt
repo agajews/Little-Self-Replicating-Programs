@@ -1,0 +1,1 @@
+To run this project, simply build it with `stack build`, and then either use the provided `Main.hs` with `stack ghc app/Main.hs`, or experiment interactively with `stack ghci` and the functions exported from the `Rep.lhs` module.
