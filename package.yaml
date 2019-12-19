@@ -26,6 +26,8 @@ dependencies:
 - monad-coroutine
 - random
 - MonadRandom
+- parallel
+- deepseq
 
 library:
   source-dirs: src

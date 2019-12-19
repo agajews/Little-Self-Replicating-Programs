@@ -9,6 +9,7 @@ module State (
     getCellPos,
     setCellPos,
     getSize,
+    resetEvalTime,
 ) where
 \end{code}
 
@@ -51,7 +52,9 @@ The \texttt{getCell} function just gets the value of a cell from the universe, l
 getCell :: Int -> Thread Value
 getCell x = do
     state <- get
-    return $ Map.union (univEdits state) (univMap state) Map.! x
+    return $ case univEdits state Map.!? x of
+        Just y -> y
+        Nothing -> univMap state Map.! x
 \end{code}
 The \texttt{setCell} function just sets the value of a cell in the thread's local \texttt{univEdits}.
 
@@ -84,4 +87,12 @@ getSize :: Thread Int
 getSize = do
     state <- get
     return $ univSize state
+\end{code}
+The following just resets the \texttt{evalTime} to 0. It is called when a thread starts evaluating a new cell.
+
+\begin{code}
+resetEvalTime :: Thread ()
+resetEvalTime = do
+    state <- get
+    put $ state { evalTime = 0 }
 \end{code}

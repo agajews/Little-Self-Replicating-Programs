@@ -19,6 +19,10 @@ import Control.Monad.Random
 \end{code}
 
 \begin{code}
+import Control.Parallel.Strategies
+\end{code}
+
+\begin{code}
 import qualified Data.Map as Map
 \end{code}
 The \texttt{randomThread} function assigns a thread to a random cell to evaluate, and starts it evaluating that random cell.
@@ -29,6 +33,7 @@ randomThread = do
     n <- getSize
     i <- liftRandom $ getRandomR (0, n - 1)
     setCellPos i
+    resetEvalTime
     cell <- getCell i
     eval cell
 \end{code}
@@ -37,15 +42,17 @@ To run a step of simulation, we tell the threads to mutate the universe, and the
 \begin{code}
 runStep :: ([WorldState], [Thread Value]) -> ([WorldState], [Thread Value])
 runStep (states, threads) = (states'', threads'') where
-    (threads', states') = unzip
-        [runThread s (mutate >> t) | (s, t) <- zip states threads]
+    evalList = [runThread s (mutate >> t) | (s, t) <- zip states threads]
+    (threads', states') = unzip (evalList `using` parList rdeepseq)
     restartThread (Left err) = randomThread
     restartThread (Right (Left t)) = t
     restartThread (Right (Right _)) = randomThread
     threads'' = map restartThread threads'
     univ = univMap $ head states
     univ' = Map.union (Map.unions $ map univEdits states') univ 
-    updateState state = state { univMap = univ', univEdits = Map.empty }
+    updateState state = state { univMap = univ',
+                                univEdits = Map.empty,
+                                evalTime = evalTime state + 1 }
     states'' = map updateState states'
 \end{code}
 At the beginning of the simulation, we set each cell to a random value, generate some random seeds to give each thread a different random generator, and start each thread on evaluating a random cell.
@@ -64,14 +71,19 @@ initialize nCells nThreads seed = (states, threads) where
                                univEdits = Map.empty,
                                envMap = Map.empty,
                                randomGen = mkStdGen s,
-                               cellPos = 0 }
+                               cellPos = 0,
+                               evalTime = 0 }
     states = [makeState s | s <- seeds]
     threads = replicate nThreads randomThread
 \end{code}
-The following is just a helper function that will run the simulation for $n$ steps.
+The following is just a helper function that will run the simulation for $n$ steps, and output the longest evaluation times for each thread.
 
 \begin{code}
-runN :: Int -> Int -> Int -> Int -> [WorldState]
+runN :: Int -> Int -> Int -> Int -> [Int]
 runN nCells nThreads seed n =
-    fst $ iterate runStep (initialize nCells nThreads seed) !! n
+    runN' (initialize nCells nThreads seed) (replicate nThreads 0) n where
+        runN' state maxs 0 = maxs
+        runN' state maxs m = runN' (states, threads) maxs' (m - 1) where
+            (states, threads) = runStep state
+            maxs' = [max (evalTime s) m | (s, m) <- zip states maxs]
 \end{code}

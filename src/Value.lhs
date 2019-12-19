@@ -4,6 +4,7 @@ The following language extensions just make things a bit easier, letting us auto
 \begin{code}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NamedFieldPuns #-}
 \end{code}
 
 \begin{code}
@@ -31,6 +32,11 @@ We also need the \texttt{Rand} monad to deal with mutations and random initializ
 \begin{code}
 import Control.Monad.Random
 import System.Random
+\end{code}
+
+\begin{code}
+import Control.DeepSeq
+import Control.Parallel.Strategies
 \end{code}
 Basically everything is currently implemented with maps, even the universe of cells, which would more reasonably have been implemented as an array. This was just for simplicity. \texttt{Array.Diff} is still experimental, and it would have been annoying to wrap everything in \texttt{ST}  or \texttt{IO}, so I just went with maps for everything. Future versions could use more efficient data structures, but since the point of this project was (1) to be a proof of concept and (2) to try to get a parallelization speedup, it seemed fine to have the sequential code be a bit inefficient.
 
@@ -74,7 +80,8 @@ data WorldState = WorldState { univMap :: ValueMap,
                                univEdits :: ValueMap,
                                envMap :: ValueMap,
                                randomGen :: StdGen,
-                               cellPos :: Int }
+                               cellPos :: Int,
+                               evalTime :: Int }
                   deriving (Show)
 \end{code}
 A \texttt{Thread} is an identity coroutine (meaning it can be paused, but doesn't generate a value until it's finished) that can fail with an \texttt{EvalError}, and always has a \texttt{WorldState}, even if it has failed.
@@ -92,6 +99,38 @@ The following is a helper instance making it easier to access the internal \text
 instance MonadState WorldState Thread where
     get = Thread $ lift $ get
     put = Thread . lift . put
+\end{code}
+
+\begin{code}
+instance NFData (Thread a) where
+    rnf t = seq t ()
+
+instance NFData EvalError where
+    rnf e = seq e ()
+
+instance NFData Value where
+    rnf (IntVal x) = seq x ()
+    rnf (PrimFunc name f) = seq name $ seq f ()
+    rnf (Lambda var val) = seq var $ deepseq val ()
+    rnf (Variable var) = seq var ()
+    rnf (FuncCall f a) = deepseq f $ deepseq a ()
+
+instance NFData WorldState where
+    rnf (WorldState { univMap,
+                      univSize,
+                      univEdits,
+                      envMap,
+                      randomGen,
+                      cellPos,
+                      evalTime }) = runEval $ do
+        rdeepseq univMap
+        rseq univSize
+        rdeepseq univEdits
+        rdeepseq envMap
+        rseq randomGen
+        rseq cellPos
+        rseq evalTime
+        return ()
 \end{code}
 We don't need a \texttt{MonadError} instance since we never need to catch any errors, so this is essentially just the \texttt{throwError} method from the \texttt{MonadError} typeclass.
 
